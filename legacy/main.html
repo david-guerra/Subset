@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subs⊆t - Student Social App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- ONBOARDING SCREEN -->
+    <div id="login-screen">
+        <div class="onboarding-container">
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 20%;"></div>
+            </div>
+            <div class="progress-steps">
+                <div class="step-indicator active" id="step-indicator-1">1. Start</div>
+                <div class="step-indicator" id="step-indicator-2">2. Studium</div>
+                <div class="step-indicator" id="step-indicator-3">3. Persönlich</div>
+                <div class="step-indicator" id="step-indicator-4">4. Interessen</div>
+                <div class="step-indicator" id="step-indicator-5">5. Fertig</div>
+            </div>
+
+            <!-- Step 1: Welcome & Name -->
+            <div class="onboarding-step active" id="onboarding-step-1">
+                <h1
+                    style="color:var(--primary); margin-bottom: 10px; font-size: 2.5rem; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                    Subs<span style="position: relative; color: var(--secondary);"><span
+                            style="position: relative;">⊂</span><span
+                            style="position: absolute; bottom: -4px; left: 0; right: 0; height: 2px; background: var(--secondary); display: block;"></span></span>t
+                </h1>
+                <h2>Willkommen bei Subs⊂t! 👋</h2>
+                <p>Wir helfen dir dabei, die perfekten Kommilitonen, Lerngruppen und Clubs zu finden.</p>
+                <div class="form-group" style="text-align: left; margin-top: 30px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Wie
+                        heißt du?</label>
+                    <input type="text" id="onboarding-name" placeholder="Dein Name" autofocus>
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">E-Mail-Adresse</label>
+                    <input type="email" id="onboarding-email" placeholder="deine.email@uni.de">
+                </div>
+                <button class="btn btn-primary" onclick="app.onboardingNext()"
+                    style="width: 100%; margin-top: 20px;">Weiter →</button>
+            </div>
+
+            <!-- Step 2: Study Info -->
+            <div class="onboarding-step" id="onboarding-step-2">
+                <h2>Erzähl uns von deinem Studium 📚</h2>
+                <p>Diese Informationen helfen uns, passende Kommilitonen zu finden. Keine Sorge, du kannst alles später
+                    ändern!</p>
+                <div class="form-group" style="text-align: left; margin-top: 30px;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Studiengang</label>
+                    <input type="text" id="onboarding-major" placeholder="z.B. Informatik, BWL, Design...">
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Jahrgang</label>
+                    <select id="onboarding-year">
+                        <option value="">Bitte wählen</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                    </select>
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Aktuelles
+                        Semester</label>
+                    <select id="onboarding-semester">
+                        <option value="1">1. Semester</option>
+                        <option value="2">2. Semester</option>
+                        <option value="3">3. Semester</option>
+                        <option value="4">4. Semester</option>
+                        <option value="5">5. Semester</option>
+                        <option value="6">6. Semester</option>
+                        <option value="7+">7+ Semester</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="app.onboardingPrev()" style="flex: 1;">← Zurück</button>
+                    <button class="btn btn-primary" onclick="app.onboardingNext()" style="flex: 1;">Weiter →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Personal Info -->
+            <div class="onboarding-step" id="onboarding-step-3">
+                <h2>Lass uns dich besser kennenlernen 🎯</h2>
+                <p>Teile ein paar persönliche Details mit uns. Diese sind optional, helfen aber beim Matching!</p>
+                <div class="form-group" style="text-align: left; margin-top: 30px;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Alter</label>
+                    <input type="number" id="onboarding-age" placeholder="z.B. 22" min="16" max="99">
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Über
+                        dich</label>
+                    <textarea id="onboarding-bio" rows="4"
+                        placeholder="Erzähl uns etwas über dich... Was machst du gerne? Was sind deine Ziele?"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="app.onboardingPrev()" style="flex: 1;">← Zurück</button>
+                    <button class="btn btn-primary" onclick="app.onboardingNext()" style="flex: 1;">Weiter →</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Interests & Hobbies -->
+            <div class="onboarding-step" id="onboarding-step-4">
+                <h2>Deine Interessen & Hobbys 🎨</h2>
+                <p>Wähle deine Interessen aus oder füge eigene hinzu. Das hilft uns beim Matching! Du kannst später
+                    jederzeit mehr hinzufügen.</p>
+
+                <div style="margin: 30px 0;">
+                    <label
+                        style="display: block; margin-bottom: 15px; font-weight: 600; color: var(--text-main); text-align: left;">Interessen
+                        (klicke zum Auswählen)</label>
+                    <div class="interest-tags" id="interest-tags-container">
+                        <span class="interest-tag" data-tag="KI">KI</span>
+                        <span class="interest-tag" data-tag="Coding">Coding</span>
+                        <span class="interest-tag" data-tag="Design">Design</span>
+                        <span class="interest-tag" data-tag="Marketing">Marketing</span>
+                        <span class="interest-tag" data-tag="Startups">Startups</span>
+                        <span class="interest-tag" data-tag="Sport">Sport</span>
+                        <span class="interest-tag" data-tag="Musik">Musik</span>
+                        <span class="interest-tag" data-tag="Gaming">Gaming</span>
+                        <span class="interest-tag" data-tag="Fotografie">Fotografie</span>
+                        <span class="interest-tag" data-tag="Reisen">Reisen</span>
+                        <span class="interest-tag" data-tag="Lesen">Lesen</span>
+                        <span class="interest-tag" data-tag="Kunst">Kunst</span>
+                        <span class="interest-tag" data-tag="Fussball">Fussball</span>
+                        <span class="interest-tag" data-tag="Yoga">Yoga</span>
+                        <span class="interest-tag" data-tag="Kochen">Kochen</span>
+                        <span class="interest-tag" data-tag="Politik">Politik</span>
+                        <span class="interest-tag" data-tag="Nachhaltigkeit">Nachhaltigkeit</span>
+                    </div>
+                    <div class="form-group" style="text-align: left; margin-top: 20px;">
+                        <input type="text" id="onboarding-custom-interest"
+                            placeholder="Eigene Interessen hinzufügen (mit Komma trennen)"
+                            onkeypress="if(event.key==='Enter') app.addCustomInterests()">
+                        <button class="btn btn-secondary" onclick="app.addCustomInterests()"
+                            style="width: 100%; margin-top: 10px;">Hinzufügen</button>
+                    </div>
+                </div>
+
+                <div style="margin: 30px 0;">
+                    <label
+                        style="display: block; margin-bottom: 15px; font-weight: 600; color: var(--text-main); text-align: left;">Hobbys</label>
+                    <div id="hobbies-container"></div>
+                    <button class="btn btn-secondary" onclick="app.addHobbyField()"
+                        style="width: 100%; margin-top: 10px;">+ Hobby hinzufügen</button>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="app.onboardingPrev()" style="flex: 1;">← Zurück</button>
+                    <button class="btn btn-primary" onclick="app.onboardingNext()" style="flex: 1;">Fertig! 🎉</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Welcome & Summary -->
+            <div class="onboarding-step" id="onboarding-step-5">
+                <div class="welcome-message">
+                    <h3>🎉 Willkommen bei Subs<span style="position: relative;"><span>⊂</span><span
+                                style="position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: var(--primary); display: block;"></span></span>t!
+                    </h3>
+                    <p>Dein Profil wurde erfolgreich erstellt. Wir haben bereits passende Kommilitonen für dich
+                        gefunden!</p>
+                </div>
+
+                <div class="welcome-stats">
+                    <div class="welcome-stat">
+                        <div class="welcome-stat-number" id="welcome-matches">0</div>
+                        <div class="welcome-stat-label">Passende<br>Studenten</div>
+                    </div>
+                    <div class="welcome-stat">
+                        <div class="welcome-stat-number" id="welcome-groups">0</div>
+                        <div class="welcome-stat-label">Empfohlene<br>Gruppen</div>
+                    </div>
+                    <div class="welcome-stat">
+                        <div class="welcome-stat-number" id="welcome-clubs">0</div>
+                        <div class="welcome-stat-label">Passende<br>Clubs</div>
+                    </div>
+                </div>
+
+                <p style="margin-top: 30px; color: var(--text-muted);">Klicke auf "Loslegen", um deine Matches zu
+                    entdecken!</p>
+                <button class="btn btn-primary" onclick="app.completeOnboarding()"
+                    style="width: 100%; margin-top: 20px; padding: 15px; font-size: 1.1rem;">
+                    Loslegen! 🚀
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="app-interface" class="hidden">
+
+        <nav>
+            <div class="nav-content">
+                <div class="logo">Subs<span class="subset-symbol">⊂</span>t</div>
+                <div class="nav-links">
+                    <div class="nav-item active" onclick="app.nav('feed')" id="nav-feed">Feed</div>
+                    <div class="nav-item" onclick="app.nav('explore')" id="nav-explore">Explore</div>
+                    <div class="nav-item" onclick="app.nav('groups')" id="nav-groups">Gruppen</div>
+                    <div class="nav-item" onclick="app.nav('clubs')" id="nav-clubs">Clubs</div>
+                    <div class="nav-item" onclick="app.nav('modules')" id="nav-modules">Module</div>
+                    <div class="nav-item" onclick="app.nav('chats')" id="nav-chats">Chats</div>
+                    <div class="nav-item" onclick="app.nav('profile')" id="nav-profile">Profil</div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+
+            <!-- SECTION: FEED (HOME) -->
+            <section id="view-feed" class="hidden">
+                <div class="feed-container">
+                    <!-- Create Post Box -->
+                    <div class="create-post-box">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <img id="feed-user-avatar"
+                                src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff"
+                                class="post-avatar" alt="Du">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600;">Was gibt's Neues?</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Teile deine Gedanken mit der
+                                    Community</div>
+                            </div>
+                        </div>
+                        <textarea class="create-post-input" id="new-post-content"
+                            placeholder="Was möchtest du teilen?"></textarea>
+                        <div class="create-post-actions">
+                            <div style="color: var(--text-muted); font-size: 0.85rem;">
+                                <span id="post-char-count">0</span>/500 Zeichen
+                            </div>
+                            <button class="btn btn-primary" onclick="app.createPost()">Posten</button>
+                        </div>
+                    </div>
+
+                    <!-- Posts Feed -->
+                    <div id="posts-feed">
+                        <!-- Posts werden hier eingefügt -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: PROFILE -->
+            <section id="view-profile" class="hidden">
+                <div class="profile-header">
+                    <img src="https://ui-avatars.com/api/?name=Max+Mustermann&background=4f46e5&color=fff"
+                        class="profile-img-large" id="profile-img-display" alt="Profil">
+                    <div style="flex: 1;">
+                        <h2 id="profile-name-display">Lade...</h2>
+                        <p id="profile-major-display"
+                            style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 10px;">...</p>
+                        <div id="profile-tags-display"></div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="app.toggleEditProfile()">Profil bearbeiten</button>
+                </div>
+
+                <div id="edit-profile-form" class="hidden"
+                    style="background: white; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow);">
+                    <h3>Profil bearbeiten</h3>
+                    <div class="form-group">
+                        <label>Jahrgang</label>
+                        <input type="number" id="edit-year" placeholder="z.B. 2024" min="2020" max="2030">
+                    </div>
+                    <div class="form-group">
+                        <label>Interessen (Kommagetrennt für Matching!)</label>
+                        <input type="text" id="edit-interests" placeholder="z.B. KI, Design, Fussball, Startups">
+                    </div>
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <textarea id="edit-bio" rows="3" placeholder="Erzähle etwas über dich..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="app.saveProfile()">Speichern</button>
+                </div>
+
+                <h3 style="margin-top: 30px;">Dein Dashboard</h3>
+                <div class="grid">
+                    <div class="card" style="align-items: center; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary);" id="stat-matches">0
+                        </div>
+                        <div>Passende Studenten</div>
+                    </div>
+                    <div class="card" style="align-items: center; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--success);" id="stat-groups">0</div>
+                        <div>Meine Gruppen</div>
+                    </div>
+                    <div class="card" style="align-items: center; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--secondary);" id="stat-clubs">0
+                        </div>
+                        <div>Empfohlene Clubs</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: EXPLORE (STUDENTS) -->
+            <section id="view-explore" class="hidden">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <h2>Passende Studenten finden</h2>
+                    <span style="color: var(--text-muted);">Basierend auf deinen Interessen & Jahrgang</span>
+                </div>
+                <div class="filter-bar">
+                    <select class="filter-select" id="filter-year" onchange="app.renderStudents()">
+                        <option value="">Alle Jahrgänge</option>
+                        <option value="same">Gleicher Jahrgang</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                    </select>
+                    <select class="filter-select" id="filter-major" onchange="app.renderStudents()">
+                        <option value="">Alle Studiengänge</option>
+                    </select>
+                    <select class="filter-select" id="filter-min-score" onchange="app.renderStudents()">
+                        <option value="0">Alle Matches</option>
+                        <option value="30">Min. 30% Match</option>
+                        <option value="50">Min. 50% Match</option>
+                        <option value="70">Min. 70% Match</option>
+                    </select>
+                </div>
+                <div id="student-grid" class="grid">
+                    <!-- Javascript rendered content -->
+                </div>
+            </section>
+
+            <!-- SECTION: GROUPS -->
+            <section id="view-groups" class="hidden">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <h2>Lerngruppen</h2>
+                    <button class="btn btn-primary" onclick="app.showCreateGroupModal()">+ Gruppe erstellen</button>
+                </div>
+
+                <h3 style="margin-top: 20px;">Meine Gruppen</h3>
+                <div id="group-grid-my" class="grid"></div>
+
+                <h3 style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">Empfohlene Gruppen</h3>
+                <div id="group-grid-recommended" class="grid"></div>
+
+                <h3 style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">Alle Gruppen</h3>
+                <div id="group-grid-all" class="grid"></div>
+            </section>
+
+            <!-- SECTION: CLUBS -->
+            <section id="view-clubs" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Studenten Clubs</h2>
+                    <button class="btn btn-primary" onclick="app.showCreateClubModal()">+ Club Gründen</button>
+                </div>
+
+                <h3 style="margin-top: 20px;">Für dich empfohlen</h3>
+                <div id="club-grid-recommended" class="grid"></div>
+
+                <h3 style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">Alle Clubs</h3>
+                <div id="club-grid-all" class="grid"></div>
+            </section>
+
+            <!-- SECTION: MODULES -->
+            <section id="view-modules" class="hidden">
+                <h2>Kursempfehlungen</h2>
+                <p>Diese Wahlpflichtmodule passen zu deinem Profil.</p>
+                <div id="module-grid" class="grid"></div>
+            </section>
+
+            <!-- SECTION: CHATS -->
+            <section id="view-chats" class="hidden">
+                <h2>Nachrichten</h2>
+                <div id="chat-list" class="chat-list"
+                    style="background: white; border-radius: var(--radius); box-shadow: var(--shadow);">
+                    <!-- Javascript rendered content -->
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE CLUB -->
+    <div id="modal-create-club" class="modal hidden">
+        <div class="modal-content">
+            <h3>Neuen Club gründen</h3>
+            <div class="form-group">
+                <label>Name des Clubs</label>
+                <input type="text" id="club-new-name">
+            </div>
+            <div class="form-group">
+                <label>Beschreibung</label>
+                <textarea id="club-new-desc" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Tags (Wichtig für Vorschläge)</label>
+                <input type="text" id="club-new-tags" placeholder="z.B. Tech, Sport, Kunst">
+            </div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn btn-secondary"
+                    onclick="document.getElementById('modal-create-club').classList.add('hidden')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="app.createClub()">Erstellen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE GROUP -->
+    <div id="modal-create-group" class="modal hidden">
+        <div class="modal-content">
+            <h3>Neue Lerngruppe erstellen</h3>
+            <div class="form-group">
+                <label>Gruppenname</label>
+                <input type="text" id="group-new-name" placeholder="z.B. KI-Kurs Lerngruppe">
+            </div>
+            <div class="form-group">
+                <label>Beschreibung</label>
+                <textarea id="group-new-desc" rows="3" placeholder="Worum geht es in dieser Gruppe?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Kurs (Optional)</label>
+                <input type="text" id="group-new-course" placeholder="z.B. Einführung in KI">
+            </div>
+            <div class="form-group">
+                <label>Maximale Mitglieder</label>
+                <input type="number" id="group-new-max" value="10" min="2" max="50">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="group-new-public" checked> Öffentlich sichtbar
+                </label>
+            </div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn btn-secondary"
+                    onclick="document.getElementById('modal-create-group').classList.add('hidden')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="app.createGroup()">Erstellen</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
