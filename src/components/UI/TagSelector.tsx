@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import clsx from 'clsx';
-import { X } from 'lucide-react';
+import { X, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface TagSelectorProps {
     tags?: string[];
@@ -16,25 +17,49 @@ const AVAILABLE_TAGS = [
 ];
 
 export function TagSelector({ tags = AVAILABLE_TAGS, selectedTags, onToggle }: TagSelectorProps) {
+    const [showAll, setShowAll] = useState(false);
+    const visibleTags = showAll ? tags : tags.slice(0, 7); // Show 7 initially
+
     return (
-        <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => {
-                const isSelected = selectedTags.includes(tag);
-                return (
+        <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap gap-2">
+                {visibleTags.map((tag) => {
+                    const isSelected = selectedTags.includes(tag);
+                    return (
+                        <button
+                            key={tag}
+                            onClick={() => onToggle(tag)}
+                            className={clsx(
+                                "px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border",
+                                isSelected
+                                    ? "bg-primary text-white border-primary"
+                                    : "bg-gray-100 text-gray-600 border-transparent hover:bg-indigo-50 hover:border-indigo-200"
+                            )}
+                        >
+                            {tag}
+                        </button>
+                    );
+                })}
+
+                {tags.length > 7 && (
                     <button
-                        key={tag}
-                        onClick={() => onToggle(tag)}
-                        className={clsx(
-                            "px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border",
-                            isSelected
-                                ? "bg-primary text-white border-primary"
-                                : "bg-gray-100 text-gray-600 border-transparent hover:bg-indigo-50 hover:border-indigo-200"
-                        )}
+                        onClick={() => setShowAll(!showAll)}
+                        className="px-3 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:text-primary transition-colors flex items-center gap-1"
                     >
-                        {tag}
+                        {showAll ? (
+                            <>
+                                <ChevronUp size={16} />
+                                <span>Weniger</span>
+                            </>
+                        ) : (
+                            <>
+                                <ChevronDown size={16} />
+                                <span>+{tags.length - 7} weitere</span>
+                            </>
+                        )}
                     </button>
-                );
-            })}
+                )}
+            </div>
         </div>
     );
 }

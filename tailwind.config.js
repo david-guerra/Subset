@@ -1,38 +1,50 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: ["class"],
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
     ],
     theme: {
         extend: {
+            fontFamily: {
+                sans: [
+                    'Inter',
+                    'system-ui',
+                    '-apple-system',
+                    'BlinkMacSystemFont',
+                    'Segoe UI',
+                    'Roboto',
+                    'Helvetica Neue',
+                    'Arial',
+                    'sans-serif'
+                ]
+            },
             colors: {
                 primary: {
                     DEFAULT: '#4f46e5',
-                    hover: '#4338ca',
+                    hover: '#4338ca'
                 },
-                secondary: '#ec4899',
+                secondary: {
+                    DEFAULT: '#ec4899',
+                    hover: '#db2777'
+                },
                 bg: {
-                    body: '#f3f4f6',
-                    card: '#ffffff',
+                    body: '#f9fafb',
+                    card: '#ffffff'
                 },
                 text: {
-                    main: '#1f2937',
-                    muted: '#6b7280',
+                    main: '#111827',
+                    muted: '#6b7280'
                 },
-                border: '#e5e7eb',
-                success: '#10b981',
+                border: '#e5e7eb'
             },
             borderRadius: {
-                DEFAULT: '12px',
-            },
-            boxShadow: {
-                DEFAULT: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            },
-            fontFamily: {
-                sans: ['"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
-            },
-        },
+                lg: 'var(--radius)',
+                md: 'calc(var(--radius) - 2px)',
+                sm: 'calc(var(--radius) - 4px)'
+            }
+        }
     },
-    plugins: [],
+    plugins: [require("tailwindcss-animate")],
 }

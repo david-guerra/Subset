@@ -1,20 +1,38 @@
-import { Heart, MessageCircle, Share2 } from 'lucide-react';
-import { type Post, INITIAL_DATA } from '../../data/mockData';
+import { Heart, MessageCircle, Share2, Users, BookOpen, Globe, User } from 'lucide-react';
+import { type Post } from '../../data/mockData';
 import { TagBadge } from '../UI/TagSelector';
 import clsx from 'clsx';
 import { useState } from 'react';
 
+import { INITIAL_DATA } from '../../data/mockData';
+
 interface PostCardProps {
     post: Post;
+    currentUser: { name: string };
+    students: any[];
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, currentUser, students }: PostCardProps) {
     const [likes, setLikes] = useState(post.likes);
     const [isLiked, setIsLiked] = useState(false);
 
-    const author = INITIAL_DATA.students.find(s => s.id === post.authorId);
-    const authorName = author?.name || "Unknown User";
-    const authorMajor = author ? `${author.major} • Jahrgang ${author.year}` : "";
+
+    // Resolve Author Name
+    let authorName = "Unknown";
+
+    // First try the passed students list (contains DB users)
+    const author = students.find(s => s.id === post.authorId);
+    if (author) {
+        authorName = author.name;
+    } else if (post.authorId === 999 && currentUser) {
+        // Fallback for immediate "Me" posts if not yet in students list
+        authorName = currentUser.name;
+    } else {
+        // Fallback to Mock Data (should be covered by students list usually)
+        const student = INITIAL_DATA.students.find(s => s.id === post.authorId);
+        authorName = student ? student.name : `Student ${post.authorId}`;
+    }
+
     const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=random`;
 
     const handleLike = () => {
@@ -27,13 +45,62 @@ export function PostCard({ post }: PostCardProps) {
         }
     };
 
+    const getContextBadge = () => {
+        if (!post.context) return null;
+
+        const { type, name } = post.context;
+
+        const badgeClasses = "flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full mb-2 w-fit";
+
+        switch (type) {
+            case 'club':
+                return (
+                    <div className={clsx(badgeClasses, "bg-purple-50 text-purple-700")}>
+                        <Users size={12} />
+                        <span>Club: {name}</span>
+                    </div>
+                );
+            case 'module':
+                return (
+                    <div className={clsx(badgeClasses, "bg-blue-50 text-blue-700")}>
+                        <BookOpen size={12} />
+                        <span>Module: {name}</span>
+                    </div>
+                );
+            case 'group':
+                return (
+                    <div className={clsx(badgeClasses, "bg-indigo-50 text-indigo-700")}>
+                        <Users size={12} />
+                        <span>Group: {name}</span>
+                    </div>
+                );
+            case 'connection':
+                return (
+                    <div className={clsx(badgeClasses, "bg-green-50 text-green-700")}>
+                        <User size={12} />
+                        <span>Connection</span>
+                    </div>
+                );
+            case 'general':
+                return (
+                    <div className={clsx(badgeClasses, "bg-gray-100 text-gray-700")}>
+                        <Globe size={12} />
+                        <span>Uniweit</span>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
-        <div className="bg-white rounded-xl shadow-sm p-5 mb-5 transition-transform duration-200 hover:-translate-y-1 border border-border">
+        <div className="bg-white rounded-xl shadow-sm p-5 mb-5 transition-transform duration-300 hover:-translate-y-1 border border-border">
+            {getContextBadge()}
             <div className="flex items-center gap-3 mb-4">
                 <img src={avatarUrl} alt={authorName} className="w-12 h-12 rounded-full object-cover bg-gray-200" />
                 <div>
                     <div className="font-bold text-gray-900 leading-tight">{authorName}</div>
-                    <div className="text-sm text-gray-500">{authorMajor} • {post.timestamp}</div>
+                    <div className="text-sm text-gray-500">{post.timestamp}</div>
                 </div>
             </div>
 
@@ -41,7 +108,7 @@ export function PostCard({ post }: PostCardProps) {
                 {post.content}
             </div>
 
-            {post.tags.length > 0 && (
+            {post.tags && post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-4">
                     {post.tags.map(tag => <TagBadge key={tag} tag={tag} />)}
                 </div>
@@ -56,7 +123,7 @@ export function PostCard({ post }: PostCardProps) {
                     onClick={handleLike}
                     className={clsx("flex items-center gap-1.5 text-sm font-medium transition-colors", isLiked ? "text-secondary" : "text-gray-500 hover:text-primary")}
                 >
-                    <Heart size={18} className={clsx(isLiked && "fill-current")} />
+                    <Heart size={18} className={clsx("transition-transform duration-300", isLiked && "fill-current scale-110")} />
                     <span>{likes}</span>
                 </button>
                 <button className="flex items-center gap-1.5 text-gray-500 hover:text-primary text-sm font-medium transition-colors">
