@@ -3,9 +3,7 @@ import { Navbar, type NavTab } from './components/Layout/Navbar';
 import { Feed } from './components/Feed/Feed';
 import { type Post } from './data/mockData';
 import { Explore } from './components/Explore/Explore';
-import { Groups } from './components/Groups/Groups';
-import { Clubs } from './components/Clubs/Clubs';
-import { Modules } from './components/Modules/Modules';
+
 import { Chats } from './components/Chats/Chats';
 import { Profile } from './components/Profile/Profile';
 import { Landing } from './components/Landing/Landing';
@@ -78,6 +76,75 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newPost)
     });
+
+    // Mock Interaction Logic: "Hi" or "Hallo" in Club context
+    const lowerContent = newPost.content.toLowerCase();
+    if (newPost.context?.type === 'club' && (lowerContent.includes('hi') || lowerContent.includes('hallo'))) {
+
+      // 1. Like at 1s
+      setTimeout(() => {
+        setPosts(currentPosts => currentPosts.map(p => p.id === newPost.id ? { ...p, likes: (p.likes || 0) + 1 } : p));
+      }, 1000);
+
+      // 2. First comment at 2.5s
+      setTimeout(() => {
+        setPosts(currentPosts => {
+          return currentPosts.map(p => {
+            if (p.id === newPost.id) {
+              const newComment = {
+                id: Date.now(),
+                authorName: 'Sarah Mayer',
+                content: 'Hallo! Willkommen im Club! 👋',
+                timestamp: 'Gerade eben'
+              };
+              return {
+                ...p,
+                comments: (p.comments || 0) + 1,
+                commentsList: [...(p.commentsList || []), newComment]
+              };
+            }
+            return p;
+          });
+        });
+      }, 2500);
+
+      // 3. Likes at 3.5s
+      setTimeout(() => {
+        setPosts(currentPosts => currentPosts.map(p => p.id === newPost.id ? { ...p, likes: (p.likes || 0) + 3 } : p));
+      }, 3500);
+
+      // 4. Second comment at 5s
+      setTimeout(() => {
+        setPosts(currentPosts => {
+          return currentPosts.map(p => {
+            if (p.id === newPost.id) {
+              const newComment = {
+                id: Date.now() + 1,
+                authorName: 'Tom Weber',
+                content: 'Hey, schön dich hier zu sehen! Wenn du Fragen hast, meld dich gerne.',
+                timestamp: 'Gerade eben'
+              };
+              return {
+                ...p,
+                comments: (p.comments || 0) + 1,
+                commentsList: [...(p.commentsList || []), newComment]
+              };
+            }
+            return p;
+          });
+        });
+      }, 5000);
+
+      // 5. Likes at 6.5s
+      setTimeout(() => {
+        setPosts(currentPosts => currentPosts.map(p => p.id === newPost.id ? { ...p, likes: (p.likes || 0) + 2 } : p));
+      }, 6500);
+
+      // 6. Final Likes at 8s
+      setTimeout(() => {
+        setPosts(currentPosts => currentPosts.map(p => p.id === newPost.id ? { ...p, likes: (p.likes || 0) + 5 } : p));
+      }, 8000);
+    }
   };
 
   const handleJoinGroup = async (groupId: number) => {
@@ -163,17 +230,18 @@ function App() {
       case 'feed':
         return <Feed posts={posts} onPostCreate={handlePostCreate} currentUser={currentUser} students={students} />;
       case 'explore':
-        return <Explore currentUser={currentUser} onMessage={handleMessage} />;
-      case 'groups':
-        return <Groups currentUser={currentUser} onJoinGroup={handleJoinGroup} />;
-      case 'clubs':
-        return <Clubs currentUser={currentUser} onJoinClub={handleJoinClub} />;
-      case 'modules':
-        return <Modules currentUser={currentUser} />;
+        return (
+          <Explore
+            currentUser={currentUser}
+            onMessage={handleMessage}
+            onJoinGroup={handleJoinGroup}
+            onJoinClub={handleJoinClub}
+          />
+        );
       case 'chats':
         return <Chats initialChatId={targetChatId} currentUserId={currentUser.id} />;
       case 'profile':
-        return <Profile currentUser={currentUser} onUpdateProfile={handleUpdateProfile} onLogout={handleLogout} />;
+        return <Profile currentUser={currentUser} onUpdateProfile={handleUpdateProfile} />;
       default:
         return null;
     }
@@ -181,7 +249,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-bg-body font-sans text-text-main pb-20">
-      <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Navbar activeTab={activeTab} onTabChange={setActiveTab} currentUser={currentUser} onLogout={handleLogout} />
       <main className="container mx-auto px-4">
         <div key={activeTab} className="animate-in fade-in slide-in-from-bottom-4 duration-500 ease-in-out">
           {renderContent()}

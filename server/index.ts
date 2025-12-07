@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import { Student, Post, Group, Club, Module, Chat } from './models.ts';
+import { Student, Post, Group, Club, Module, Chat, Event } from './models.ts';
 import { INITIAL_DATA } from '../src/data/mockData.ts'; // Share data!
 // Trigger restart for context changes
 
@@ -28,7 +28,8 @@ app.post('/api/reset', async (req, res) => {
             Group.deleteMany({}),
             Club.deleteMany({}),
             Module.deleteMany({}),
-            Chat.deleteMany({})
+            Chat.deleteMany({}),
+            Event.deleteMany({})
         ]);
 
         // Helpers for randomization
@@ -54,8 +55,20 @@ app.post('/api/reset', async (req, res) => {
                 username,
                 email: `${username}@university.edu`,
                 password: 'admin',
-                courses: getRandomItems(allModuleTitles, 2, 4) // 2-4 random courses
+                courses: getRandomItems(allModuleTitles, 2, 4), // 2-4 random courses
+                courses: getRandomItems(allModuleTitles, 2, 4), // 2-4 random courses
+                connections: [], // Init connections (will populate below)
+                incomingRequests: [],
+                outgoingRequests: []
             };
+        });
+
+        // Generate Random Connections
+        studentsWithCourses.forEach(student => {
+            // Pick 3-8 random other students
+            const others = studentsWithCourses.filter(s => s.id !== student.id);
+            const myConnections = getRandomItems(others, 3, 8).map(s => s.id);
+            student.connections = myConnections;
         });
 
         // Prepare Clubs with Random Members (Distribute mock students into clubs)
@@ -343,13 +356,179 @@ app.post('/api/reset', async (req, res) => {
             }
         });
 
+        // 4. Generate Events
+        const mockEvents: any[] = [];
+        let nextEventId = 1;
+
+        // University Events (3)
+        mockEvents.push(
+            {
+                id: nextEventId++,
+                title: "Semester Opening Party",
+                description: "Feiert den Start des neuen Semesters mit uns! Musik, Drinks und gute Laune.",
+                date: "14.10.2024",
+                time: "20:00",
+                location: "Mensa & Campus Garden",
+                organizer: { type: 'university', name: 'Universität' },
+                tags: ["Party", "Social", "Campus"],
+                attendees: 124,
+                attendeeIds: [],
+                image: "https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=600&h=400&fit=crop",
+                isPublic: true
+            },
+            {
+                id: nextEventId++,
+                title: "Karrieremesse 2024",
+                description: "Triff Top-Arbeitgeber und plane deine Zukunft.",
+                date: "05.11.2024",
+                time: "10:00",
+                location: "Audimax Foyer",
+                organizer: { type: 'university', name: 'Career Center' },
+                tags: ["Karriere", "Jobs", "Networking"],
+                attendees: 85,
+                attendeeIds: [],
+                image: "https://images.unsplash.com/photo-1551818255-e6e10975bc17?w=600&h=400&fit=crop",
+                isPublic: true
+            },
+            {
+                id: nextEventId++,
+                title: "Weihnachtskonzert",
+                description: "Stimmungsvolles Konzert des Uni-Orchesters.",
+                date: "18.12.2024",
+                time: "19:00",
+                location: "Aula Magna",
+                organizer: { type: 'university', name: 'Kulturbüro' },
+                tags: ["Musik", "Kultur", "Weihnachten"],
+                attendees: 210,
+                attendeeIds: [],
+                image: "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=600&h=400&fit=crop",
+                isPublic: true
+            }
+        );
+
+        // Helper to add attendees
+        const populateAttendees = (ev: any, eligibleStudentIds: number[]) => {
+            // Pick 10-30% of eligible students or at least 1-3 if small
+            const count = Math.max(2, Math.floor(eligibleStudentIds.length * (0.1 + Math.random() * 0.2)));
+            const pickedIds = getRandomItems(eligibleStudentIds, count, count); // pick exactly count
+            ev.attendeeIds = pickedIds;
+            ev.attendees = pickedIds.length;
+        };
+
+        // Populate University Events (Eligible: Everyone)
+        const allStudentIds = studentsWithCourses.map(s => s.id);
+        mockEvents.forEach(ev => {
+            if (ev.organizer.type === 'university') {
+                populateAttendees(ev, allStudentIds);
+                // Boost numbers for uni events (fake high number for display, but real IDs for the few)
+                // Actually, let's just keep the real IDs reliable so "attendees" count matches "attendeeIds.length"
+                // Or we can say attendees = attendeeIds.length + random extra (guests)
+                ev.attendees = ev.attendeeIds.length + Math.floor(Math.random() * 100);
+            }
+        });
+
+        // Club Events (1 per club)
+        clubsWithMembers.forEach(c => {
+            const isPublic = Math.random() > 0.5;
+            const newEvent: any = {
+                id: nextEventId++,
+                title: `${c.name} - Infoabend`,
+                description: `Lerne den ${c.name} kennen und erfahre, was wir dieses Semester planen.`,
+                date: ["20.10.2024", "22.10.2024", "25.10.2024"][Math.floor(Math.random() * 3)],
+                time: c.meetingTime || "18:00",
+                location: "Seminarraum 3",
+                organizer: { type: 'club', name: c.name, id: c.id },
+                tags: [...c.tags, "Info"],
+                attendees: Math.floor(Math.random() * 20) + 5,
+                attendeeIds: [],
+                image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=400&fit=crop",
+                isPublic: isPublic
+            };
+
+            // Attendee Logic
+            if (isPublic) {
+                populateAttendees(newEvent, allStudentIds);
+            } else {
+                populateAttendees(newEvent, c.memberIds || []);
+            }
+            // Add some "guest" padding to count
+            newEvent.attendees += Math.floor(Math.random() * 5);
+
+            mockEvents.push(newEvent);
+
+        });
+
+        // Group Events (1 per group - e.g. Study Session)
+        finalGroups.forEach(g => {
+            const isPublic = Math.random() > 0.5;
+            const newEvent: any = {
+                id: nextEventId++,
+                title: `Lernsprint: ${g.name}`,
+                description: "Gemeinsames Lernen und Vorbereiten.",
+                date: "Morgen",
+                time: "14:00",
+                location: "Bibliothek Gr. 2",
+                organizer: { type: 'group', name: g.name, id: g.id },
+                tags: ["Lernen", "Gruppe"],
+                attendees: g.members,
+                attendeeIds: [],
+                image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop",
+                isPublic: isPublic
+            };
+
+            // Attendee Logic
+            if (isPublic) {
+                populateAttendees(newEvent, allStudentIds);
+            } else {
+                populateAttendees(newEvent, g.memberIds || []);
+            }
+            newEvent.attendees += Math.floor(Math.random() * 3);
+
+            mockEvents.push(newEvent);
+
+        });
+
+        // Module Events (1 per module - e.g. Guest Lecture)
+        INITIAL_DATA.modules.forEach(m => {
+            const isPublic = Math.random() > 0.6;
+            const newEvent: any = {
+                id: nextEventId++,
+                title: `Gastvortrag zu ${m.title}`,
+                description: "Spannende Einblicke aus der Praxis.",
+                date: "28.11.2024",
+                time: "16:00",
+                location: "Hörsaal 1",
+                organizer: { type: 'module', name: m.title, id: m.id },
+                tags: ["Vortrag", "Wissen", m.title],
+                attendees: Math.floor(Math.random() * 50) + 20,
+                attendeeIds: [],
+                image: "https://images.unsplash.com/photo-1544531586-fde5298cdd40?w=600&h=400&fit=crop",
+                isPublic: isPublic
+            };
+
+            // Attendee Logic (Module events usually for module members, but we only track 'courses' on students)
+            // Let's find students who have this course
+            if (isPublic) {
+                populateAttendees(newEvent, allStudentIds);
+            } else {
+                const studentsInModule = studentsWithCourses.filter(s => s.courses.includes(m.title)).map(s => s.id);
+                populateAttendees(newEvent, studentsInModule);
+            }
+            newEvent.attendees += Math.floor(Math.random() * 10);
+
+            mockEvents.push(newEvent);
+
+        });
+
+
         await Promise.all([
             Student.insertMany(studentsWithCourses as any),
             Post.insertMany(mockPosts as any),
             Group.insertMany(finalGroups as any),
             Club.insertMany(clubsWithMembers as any),
             Module.insertMany(INITIAL_DATA.modules as any),
-            Chat.insertMany(initialChats as any)
+            Chat.insertMany(initialChats as any),
+            Event.insertMany(mockEvents as any)
         ]);
 
         console.log('🔄 Database has been reset with RANDOMIZED mock data');
@@ -389,7 +568,10 @@ app.get('/api/me', async (req, res) => {
         ...me.toObject(),
         myGroups: myGroups.map(g => g.id),
         myClubs: myClubs.map(c => c.id),
-        bio: (me as any).bio
+        bio: (me as any).bio,
+        connections: (me as any).connections || [],
+        incomingRequests: (me as any).incomingRequests || [],
+        outgoingRequests: (me as any).outgoingRequests || []
     });
 });
 
@@ -401,7 +583,22 @@ app.post('/api/login', async (req, res) => {
 
     if (user && (user as any).password === password) {
         currentUserId = user.id!; // Log in
-        res.json({ success: true, user });
+
+        // Fetch memberships
+        const myGroups = await Group.find({ memberIds: user.id });
+        const myClubs = await Club.find({ memberIds: user.id });
+
+        res.json({
+            success: true,
+            user: {
+                ...user.toObject(),
+                myGroups: myGroups.map(g => g.id),
+                myClubs: myClubs.map(c => c.id),
+                connections: (user as any).connections || [],
+                incomingRequests: (user as any).incomingRequests || [],
+                outgoingRequests: (user as any).outgoingRequests || []
+            }
+        });
     } else {
         res.status(401).json({ error: "Invalid credentials" });
     }
@@ -473,7 +670,13 @@ app.get('/api/posts', async (req, res) => {
     const posts = await Post.find({
         $or: [
             { 'context.type': 'general' }, // Always show general
-            { 'context.type': 'connection' }, // Show connection posts (could refine to friends only later)
+            {
+                'context.type': 'connection',
+                $or: [
+                    { authorId: currentUserId }, // My posts
+                    { authorId: { $in: (me as any).connections || [] } } // My connections' posts
+                ]
+            },
             { 'context.type': 'group', 'context.id': { $in: myGroupIds } },
             { 'context.type': 'club', 'context.id': { $in: myClubIds } },
             { 'context.type': 'module', 'context.name': { $in: myCourses } }
@@ -499,6 +702,33 @@ app.get('/api/students', async (req, res) => {
 app.get('/api/groups', async (req, res) => { res.json(await Group.find()); });
 app.get('/api/clubs', async (req, res) => { res.json(await Club.find()); });
 app.get('/api/modules', async (req, res) => { res.json(await Module.find()); });
+app.get('/api/events', async (req, res) => {
+    if (!currentUserId) {
+        // Only public events for guests
+        return res.json(await Event.find({ isPublic: true }));
+    }
+
+    const me = await Student.findOne({ id: currentUserId });
+    const myGroups = await Group.find({ memberIds: currentUserId });
+    const myClubs = await Club.find({ memberIds: currentUserId });
+
+    if (!me) return res.json(await Event.find({ isPublic: true }));
+
+    const myGroupIds = myGroups.map(g => g.id);
+    const myClubIds = myClubs.map(c => c.id);
+    const myCourses = me.courses || [];
+
+    const events = await Event.find({
+        $or: [
+            { isPublic: true }, // Open to everyone
+            { 'organizer.type': 'group', 'organizer.id': { $in: myGroupIds } }, // My groups
+            { 'organizer.type': 'club', 'organizer.id': { $in: myClubIds } }, // My clubs
+            { 'organizer.type': 'module', 'organizer.name': { $in: myCourses } } // My modules
+        ]
+    } as any).sort({ id: 1 });
+
+    res.json(events);
+});
 app.get('/api/chats', async (req, res) => { res.json(await Chat.find()); });
 
 app.post('/api/chats', async (req, res) => {
@@ -591,6 +821,96 @@ app.post('/api/clubs/leave', async (req, res) => {
     res.json({ success: true, club });
 });
 
+app.post('/api/users/connect', async (req, res) => {
+    if (!currentUserId) return res.status(401).json({ error: "Not logged in" });
+    const { targetUserId } = req.body;
+
+    const me = await Student.findOne({ id: currentUserId });
+    const target = await Student.findOne({ id: targetUserId });
+
+    if (!me || !target) return res.status(404).json({ error: "User not found" });
+
+    // Initialize if missing
+    if (!(me as any).connections) (me as any).connections = [];
+    if (!(me as any).outgoingRequests) (me as any).outgoingRequests = [];
+    if (!(target as any).incomingRequests) (target as any).incomingRequests = [];
+
+    // Check if already connected
+    if ((me as any).connections.includes(targetUserId)) {
+        return res.json({ success: true, status: 'connected' });
+    }
+
+    // Check if already requested
+    if ((me as any).outgoingRequests.includes(targetUserId)) {
+        return res.json({ success: true, status: 'pending' });
+    }
+
+    // Send Request Logic
+    // 1. Add to my outgoing
+    (me as any).outgoingRequests.push(targetUserId);
+    await me.save();
+
+    // 2. Add to target's incoming
+    (target as any).incomingRequests.push(currentUserId);
+    await target.save();
+
+    res.json({ success: true, status: 'pending', outgoingRequests: (me as any).outgoingRequests });
+});
+
+app.post('/api/users/cancel-request', async (req, res) => {
+    if (!currentUserId) return res.status(401).json({ error: "Not logged in" });
+    const { targetUserId } = req.body;
+
+    const me = await Student.findOne({ id: currentUserId });
+    const target = await Student.findOne({ id: targetUserId });
+
+    if (!me || !target) return res.status(404).json({ error: "User not found" });
+
+    // Remove from my outgoing
+    if ((me as any).outgoingRequests?.includes(targetUserId)) {
+        (me as any).outgoingRequests = (me as any).outgoingRequests.filter((id: number) => id !== targetUserId);
+        await me.save();
+    }
+
+    // Remove from target's incoming
+    if ((target as any).incomingRequests?.includes(currentUserId)) {
+        (target as any).incomingRequests = (target as any).incomingRequests.filter((id: number) => id !== currentUserId);
+        await target.save();
+    }
+
+    res.json({ success: true });
+});
+
+app.post('/api/users/accept', async (req, res) => {
+    if (!currentUserId) return res.status(401).json({ error: "Not logged in" });
+    const { targetUserId } = req.body;
+
+    const me = await Student.findOne({ id: currentUserId });
+    const target = await Student.findOne({ id: targetUserId });
+
+    if (!me || !target) return res.status(404).json({ error: "User not found" });
+
+    // Move from incoming -> connections
+    if ((me as any).incomingRequests.includes(targetUserId)) {
+        (me as any).incomingRequests = (me as any).incomingRequests.filter((id: number) => id !== targetUserId);
+        if (!(me as any).connections.includes(targetUserId)) {
+            (me as any).connections.push(targetUserId);
+        }
+        await me.save();
+    }
+
+    // Move from target's outgoing -> connections
+    if ((target as any).outgoingRequests.includes(currentUserId)) {
+        (target as any).outgoingRequests = (target as any).outgoingRequests.filter((id: number) => id !== currentUserId);
+        if (!(target as any).connections.includes(currentUserId)) {
+            (target as any).connections.push(currentUserId);
+        }
+        await target.save();
+    }
+
+    res.json({ success: true });
+});
+
 // CREATE ROUTES
 app.post('/api/groups', async (req, res) => {
     if (!currentUserId) return res.status(401).json({ error: "Not logged in" });
@@ -630,6 +950,40 @@ app.post('/api/clubs', async (req, res) => {
         memberIds: [currentUserId]
     } as any);
     res.json(newClub);
+});
+
+// EVENT ROUTES
+app.post('/api/events/join', async (req, res) => {
+    if (!currentUserId) return res.status(401).json({ error: "Not logged in" });
+    const { eventId } = req.body;
+
+    const event = await Event.findOne({ id: eventId });
+    if (!event) return res.status(404).json({ error: "Event not found" });
+
+    // Initialize list if it doesn't exist (safety check)
+    if (!event.attendeeIds) event.attendeeIds = [];
+
+    if (!event.attendeeIds.includes(currentUserId)) {
+        event.attendeeIds.push(currentUserId);
+        event.attendees = (event.attendees || 0) + 1;
+        await event.save();
+    }
+    res.json({ success: true, event });
+});
+
+app.post('/api/events/leave', async (req, res) => {
+    if (!currentUserId) return res.status(401).json({ error: "Not logged in" });
+    const { eventId } = req.body;
+
+    const event = await Event.findOne({ id: eventId });
+    if (!event) return res.status(404).json({ error: "Event not found" });
+
+    if (event.attendeeIds && event.attendeeIds.includes(currentUserId)) {
+        event.attendeeIds = event.attendeeIds.filter(id => id !== currentUserId);
+        event.attendees = Math.max(0, (event.attendees || 1) - 1);
+        await event.save();
+    }
+    res.json({ success: true, event });
 });
 
 

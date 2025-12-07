@@ -32,8 +32,8 @@ export function TagSelector({ tags = AVAILABLE_TAGS, selectedTags, onToggle }: T
                             className={clsx(
                                 "px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border",
                                 isSelected
-                                    ? "bg-primary text-white border-primary"
-                                    : "bg-gray-100 text-gray-600 border-transparent hover:bg-indigo-50 hover:border-indigo-200"
+                                    ? "bg-primary text-primary-foreground border-primary"
+                                    : "bg-muted text-muted-foreground border-transparent hover:bg-accent hover:border-border hover:text-foreground"
                             )}
                         >
                             {tag}
@@ -44,17 +44,17 @@ export function TagSelector({ tags = AVAILABLE_TAGS, selectedTags, onToggle }: T
                 {tags.length > 7 && (
                     <button
                         onClick={() => setShowAll(!showAll)}
-                        className="px-3 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:text-primary transition-colors flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-full text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
                     >
                         {showAll ? (
                             <>
                                 <ChevronUp size={16} />
-                                <span>Weniger</span>
+                                <span className="text-foreground">Weniger</span>
                             </>
                         ) : (
                             <>
                                 <ChevronDown size={16} />
-                                <span>+{tags.length - 7} weitere</span>
+                                <span className="text-foreground">+{tags.length - 7} weitere</span>
                             </>
                         )}
                     </button>
@@ -73,7 +73,7 @@ export function TagBadge({ tag, onRemove }: TagBadgeProps) {
     return (
         <span
             className={clsx(
-                "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800",
+                "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary",
                 onRemove && "pr-1"
             )}
         >
@@ -81,7 +81,7 @@ export function TagBadge({ tag, onRemove }: TagBadgeProps) {
             {onRemove && (
                 <button
                     onClick={onRemove}
-                    className="ml-1 text-indigo-600 hover:text-indigo-900 focus:outline-none"
+                    className="ml-1 text-primary/70 hover:text-primary focus:outline-none"
                 >
                     <X size={12} />
                 </button>

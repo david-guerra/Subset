@@ -116,6 +116,13 @@ const app = {
     onboardingStep: 1,
     selectedInterests: [],
 
+    logout: function () {
+        if (confirm("Möchtest du dich wirklich abmelden?")) {
+            localStorage.removeItem('subset_user');
+            location.reload();
+        }
+    },
+
     init: function () {
         this.loadFromStorage();
         this.initOnboarding();

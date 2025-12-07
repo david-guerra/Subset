@@ -1,5 +1,6 @@
 import type { Group } from '../../data/mockData';
 import { Users, BookOpen } from 'lucide-react';
+import { ReportMenu } from '../UI/ReportMenu';
 import clsx from 'clsx';
 
 interface GroupCardProps {
@@ -16,30 +17,34 @@ export function GroupCard({ group, score, isMember, onJoin, onLeave, onViewDetai
     const canJoin = !isMember && !isFull;
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-border p-5 flex flex-col h-full transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-            <div className="flex justify-between items-start mb-2">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-5 flex flex-col h-full transition-all duration-300 hover:shadow-md hover:-translate-y-1 relative">
+            <div className="absolute top-4 right-4 z-10" onClick={e => e.stopPropagation()}>
+                <ReportMenu onReport={() => alert("Gruppe gemeldet.")} itemType="Gruppe" />
+            </div>
+
+            <div className="flex justify-between items-start mb-2 pr-8">
                 <div
-                    className="text-lg font-bold text-gray-900 leading-tight cursor-pointer hover:text-primary transition-colors"
+                    className="text-lg font-bold text-foreground leading-tight cursor-pointer hover:text-primary transition-colors"
                     onClick={() => onViewDetails(group)}
                 >
                     {group.name}
                 </div>
-                {score > 30 && !isMember && (
-                    <div className="bg-indigo-50 text-primary text-xs font-bold px-2 py-1 rounded-md whitespace-nowrap ml-2">
+                {score > 0 && !isMember && (
+                    <div className="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-300 text-xs font-bold px-2 py-1 rounded-md whitespace-nowrap ml-2">
                         {score}% Match
                     </div>
                 )}
             </div>
 
             {group.course && (
-                <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3 font-medium">
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3 font-medium">
                     <BookOpen size={14} className="text-indigo-400" />
                     <span>{group.course}</span>
                 </div>
             )}
 
             <p
-                className="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow cursor-pointer"
+                className="text-muted-foreground text-sm mb-4 line-clamp-2 flex-grow cursor-pointer"
                 onClick={() => onViewDetails(group)}
             >
                 {group.desc}
@@ -47,22 +52,22 @@ export function GroupCard({ group, score, isMember, onJoin, onLeave, onViewDetai
 
             <div className="flex flex-wrap gap-1.5 mb-4">
                 {group.tags.map(tag => (
-                    <span key={tag} className="px-2 py-1 bg-gray-50 text-gray-500 text-xs rounded-md">
+                    <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md">
                         {tag}
                     </span>
                 ))}
             </div>
 
-            <div className="flex items-center justify-between border-t border-gray-50 pt-3 mt-auto gap-3">
+            <div className="flex items-center justify-between border-t border-border pt-3 mt-auto gap-3">
                 <button
                     onClick={() => onViewDetails(group)}
-                    className="text-sm font-medium text-gray-500 hover:text-primary transition-colors whitespace-nowrap"
+                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
                 >
                     Details
                 </button>
 
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 text-gray-400 text-xs">
+                    <div className="flex items-center gap-1 text-muted-foreground text-xs">
                         <Users size={14} />
                         <span>{group.members}/{group.maxMembers}</span>
                     </div>
@@ -73,10 +78,10 @@ export function GroupCard({ group, score, isMember, onJoin, onLeave, onViewDetai
                         className={clsx(
                             "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap",
                             isMember
-                                ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+                                ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800"
                                 : isFull
-                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                    : "bg-primary text-white hover:bg-primary-hover shadow-sm"
+                                    ? "bg-muted text-muted-foreground cursor-not-allowed"
+                                    : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                         )}
                     >
                         {isMember ? 'Verlassen' : isFull ? 'Voll' : 'Beitreten'}

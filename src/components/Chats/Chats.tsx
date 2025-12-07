@@ -73,17 +73,17 @@ export function Chats({ initialChatId, currentUserId }: ChatsProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
 
                 {/* Chat List */}
-                <div className={clsx("bg-white rounded-2xl shadow-sm border border-border flex flex-col overflow-hidden h-full", selectedChatId ? "hidden md:flex" : "flex")}>
-                    <div className="p-4 border-b border-gray-100">
-                        <h2 className="text-xl font-bold text-gray-900 mb-3">Nachrichten</h2>
+                <div className={clsx("bg-card rounded-2xl shadow-sm border border-border flex flex-col overflow-hidden h-full", selectedChatId ? "hidden md:flex" : "flex")}>
+                    <div className="p-4 border-b border-border">
+                        <h2 className="text-xl font-bold text-foreground mb-3">Nachrichten</h2>
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
                             <input
                                 type="text"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Suchen..."
-                                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary"
+                                className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-input rounded-lg text-sm text-foreground focus:outline-none focus:border-primary placeholder:text-muted-foreground"
                             />
                         </div>
                     </div>
@@ -98,15 +98,15 @@ export function Chats({ initialChatId, currentUserId }: ChatsProps) {
                                     key={chat.id}
                                     onClick={() => setSelectedChatId(chat.id)}
                                     className={clsx(
-                                        "w-full p-4 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left border-b border-gray-50 last:border-0",
-                                        isSelected && "bg-indigo-50 hover:bg-indigo-50"
+                                        "w-full p-4 flex items-center gap-3 hover:bg-accent/50 transition-colors text-left border-b border-border/50 last:border-0",
+                                        isSelected && "bg-primary/5 hover:bg-primary/10"
                                     )}
                                 >
                                     <div className="relative">
                                         {meta.image ? (
                                             <img
                                                 src={meta.image}
-                                                className="w-12 h-12 rounded-full object-cover"
+                                                className="w-12 h-12 rounded-full object-cover bg-muted"
                                                 alt={meta.name}
                                             />
                                         ) : (
@@ -116,17 +116,17 @@ export function Chats({ initialChatId, currentUserId }: ChatsProps) {
                                         )}
 
                                         {chat.unread > 0 && (
-                                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white"></div>
+                                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-background"></div>
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-baseline mb-0.5">
-                                            <span className={clsx("font-semibold truncate", chat.unread > 0 ? "text-gray-900" : "text-gray-700")}>
+                                            <span className={clsx("font-semibold truncate", chat.unread > 0 ? "text-foreground" : "text-muted-foreground")}>
                                                 {meta.name}
                                             </span>
-                                            <span className="text-xs text-gray-400 whitespace-nowrap ml-2">{chat.timestamp}</span>
+                                            <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">{chat.timestamp}</span>
                                         </div>
-                                        <p className={clsx("text-sm truncate", chat.unread > 0 ? "text-gray-900 font-medium" : "text-gray-500")}>
+                                        <p className={clsx("text-sm truncate", chat.unread > 0 ? "text-foreground font-medium" : "text-muted-foreground")}>
                                             {chat.type === 'direct' ? '' : <span className="font-semibold mr-1">{chat.messages[0]?.senderId === 'me' ? 'Ich:' : 'User:'}</span>}
                                             {/* Ideally resolve sender name for groups */}
                                             {chat.unread > 0 ? `• ${chat.lastMessage}` : chat.lastMessage}
@@ -137,7 +137,7 @@ export function Chats({ initialChatId, currentUserId }: ChatsProps) {
                         })}
 
                         {filteredChats.length === 0 && (
-                            <div className="p-8 text-center text-gray-400 text-sm">
+                            <div className="p-8 text-center text-muted-foreground text-sm">
                                 Keine Chats gefunden
                             </div>
                         )}
@@ -159,9 +159,9 @@ export function Chats({ initialChatId, currentUserId }: ChatsProps) {
                             onBack={() => setSelectedChatId(null)}
                         />
                     ) : (
-                        <div className="h-full bg-white rounded-2xl shadow-sm border border-border flex flex-col items-center justify-center text-gray-400 p-8">
-                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                <Search size={32} className="text-gray-300" />
+                        <div className="h-full bg-card rounded-2xl shadow-sm border border-border flex flex-col items-center justify-center text-muted-foreground p-8">
+                            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                                <Search size={32} className="text-muted-foreground/50" />
                             </div>
                             <p>Wähle einen Chat aus, um zu beginnen</p>
                         </div>

@@ -10,7 +10,10 @@ const StudentSchema = new mongoose.Schema({
     courses: [String], // Added courses for profile
     email: { type: String, unique: true },
     username: { type: String, unique: true },
-    password: { type: String, default: 'admin' }
+    password: { type: String, default: 'admin' },
+    connections: [Number], // Added for Connect feature
+    incomingRequests: [Number], // IDs who requested me
+    outgoingRequests: [Number]  // IDs I requested
 });
 
 const PostSchema = new mongoose.Schema({
@@ -20,6 +23,12 @@ const PostSchema = new mongoose.Schema({
     tags: [String],
     likes: { type: Number, default: 0 },
     comments: { type: Number, default: 0 },
+    commentsList: [{
+        id: Number,
+        authorName: String,
+        content: String,
+        timestamp: String
+    }],
     timestamp: String,
     hasImage: Boolean,
     imageUrl: String,
@@ -27,7 +36,10 @@ const PostSchema = new mongoose.Schema({
         type: { type: String, enum: ['club', 'group', 'module', 'connection', 'general'] },
         name: String,
         id: Number
-    }
+    },
+    isAnonymous: Boolean,
+    isFlagged: Boolean,
+    flagReason: String
 });
 
 const GroupSchema = new mongoose.Schema({
@@ -80,9 +92,29 @@ const ChatSchema = new mongoose.Schema({
     messages: [MessageSchema]
 });
 
+const EventSchema = new mongoose.Schema({
+    id: Number,
+    title: String,
+    description: String,
+    date: String,
+    time: String,
+    location: String,
+    organizer: {
+        type: { type: String, enum: ['club', 'group', 'module', 'university'] },
+        name: String,
+        id: Number
+    },
+    tags: [String],
+    image: String,
+    attendees: Number,
+    attendeeIds: [Number],
+    isPublic: Boolean
+});
+
 export const Student = mongoose.model('Student', StudentSchema);
 export const Post = mongoose.model('Post', PostSchema);
 export const Group = mongoose.model('Group', GroupSchema);
 export const Club = mongoose.model('Club', ClubSchema);
 export const Module = mongoose.model('Module', ModuleSchema);
 export const Chat = mongoose.model('Chat', ChatSchema);
+export const Event = mongoose.model('Event', EventSchema);

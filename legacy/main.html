@@ -213,6 +213,7 @@
                     <div class="nav-item" onclick="app.nav('modules')" id="nav-modules">Module</div>
                     <div class="nav-item" onclick="app.nav('chats')" id="nav-chats">Chats</div>
                     <div class="nav-item" onclick="app.nav('profile')" id="nav-profile">Profil</div>
+
                 </div>
             </div>
         </nav>
@@ -262,7 +263,11 @@
                             style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 10px;">...</p>
                         <div id="profile-tags-display"></div>
                     </div>
-                    <button class="btn btn-secondary" onclick="app.toggleEditProfile()">Profil bearbeiten</button>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="app.toggleEditProfile()">Profil bearbeiten</button>
+                        <button class="btn btn-secondary" onclick="app.logout()"
+                            style="color: #ef4444; border-color: #ef4444;">Abmelden</button>
+                    </div>
                 </div>
 
                 <div id="edit-profile-form" class="hidden"

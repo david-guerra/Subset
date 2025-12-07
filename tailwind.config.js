@@ -22,22 +22,49 @@ export default {
             },
             colors: {
                 primary: {
-                    DEFAULT: '#4f46e5',
-                    hover: '#4338ca'
+                    DEFAULT: 'hsl(var(--primary))',
+                    foreground: 'hsl(var(--primary-foreground))',
+                    hover: 'hsl(var(--primary) / 0.9)'
                 },
                 secondary: {
-                    DEFAULT: '#ec4899',
-                    hover: '#db2777'
+                    DEFAULT: 'hsl(var(--secondary))',
+                    foreground: 'hsl(var(--secondary-foreground))',
+                    hover: 'hsl(var(--secondary) / 0.9)'
                 },
+                accent: {
+                    DEFAULT: 'hsl(var(--accent))',
+                    foreground: 'hsl(var(--accent-foreground))'
+                },
+                background: 'hsl(var(--background))',
+                foreground: 'hsl(var(--foreground))',
+                card: {
+                    DEFAULT: 'hsl(var(--card))',
+                    foreground: 'hsl(var(--card-foreground))'
+                },
+                popover: {
+                    DEFAULT: 'hsl(var(--popover))',
+                    foreground: 'hsl(var(--popover-foreground))'
+                },
+                muted: {
+                    DEFAULT: 'hsl(var(--muted))',
+                    foreground: 'hsl(var(--muted-foreground))'
+                },
+                destructive: {
+                    DEFAULT: 'hsl(var(--destructive))',
+                    foreground: 'hsl(var(--destructive-foreground))'
+                },
+                border: 'hsl(var(--border))',
+                input: 'hsl(var(--input))',
+                ring: 'hsl(var(--ring))',
+                // Keep existing legacy colors for backward compatibility until fully migrated
                 bg: {
-                    body: '#f9fafb',
-                    card: '#ffffff'
+                    body: 'hsl(var(--background))',
+                    card: 'hsl(var(--card))'
                 },
                 text: {
-                    main: '#111827',
-                    muted: '#6b7280'
-                },
-                border: '#e5e7eb'
+                    main: 'hsl(var(--foreground))',
+                    muted: 'hsl(var(--muted-foreground))'
+                }
             },
             borderRadius: {
                 lg: 'var(--radius)',

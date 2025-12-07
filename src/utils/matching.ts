@@ -63,19 +63,28 @@ export function calculateScore(
     const activityScore = Math.min((commonClubs * 15) + (commonModules * 10), 30);
 
     // 4. Base Boost (Weight: 10%)
-    const baseScore = matchingTags.length > 0 ? 10 : 0;
+    const baseScore = matchingTags.length > 0 ? 10 : 5; // Minimal base score for everyone
 
-    let total = interestScore + yearScore + activityScore + baseScore;
+    // 5. Potential/Random Boost (to make it feel more "alive" and avoid 0%)
+    // Deterministic random based on lengths to keep it consistent but "fuzzy"
+    const fuzzyBoost = (itemTags.length + userInterests.length) % 15;
 
-    if (!itemYear) {
-        // Fallback for items without year (like clubs themselves)
-        // Just scale interests to 100 if we don't have year info
-        // But if we are matching CLUBS, we don't have "common clubs" with a club usually.
-        // This function is mostly for Student<->Student matching.
-        return Math.min(Math.round((matchingTags.length / Math.max(itemTags.length, 1)) * 100), 100);
-    }
+    let total = interestScore + yearScore + activityScore + baseScore + fuzzyBoost;
 
+    // Cap at 100
     return Math.min(Math.round(total), 100);
+}
+
+// Overload for simple tag matching (Clubs/Groups)
+export function calculateMatchScore(itemTags: string[], userInterests: string[]): number {
+    if (!itemTags || !userInterests) return 10; // Base baseline
+
+    const matchingTags = itemTags.filter(tag => userInterests.includes(tag));
+    // More generous scoring: even 1 match gives a good chunk
+    const rawScore = (matchingTags.length / Math.max(itemTags.length, 1)) * 100;
+
+    // Boost low scores
+    return Math.min(Math.round(Math.max(rawScore, 10) + (Math.random() * 15)), 100);
 }
 
 export function calculateMatch(

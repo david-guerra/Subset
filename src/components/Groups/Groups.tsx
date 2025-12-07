@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, Plus } from 'lucide-react';
 import type { Group } from '../../data/mockData';
 import { GroupCard } from './GroupCard';
-import { calculateScore } from '../../utils/matching';
+import { calculateMatchScore } from '../../utils/matching';
 import { CreateResourceModal } from '../UI/CreateResourceModal';
 import { GroupDetailsModal } from './GroupDetailsModal';
 
@@ -31,6 +31,7 @@ export function Groups({ currentUser, onJoinGroup }: GroupsProps) {
         if (res.ok) {
             const newGroup = await res.json();
             setGroups(prev => [...prev, newGroup]);
+            onJoinGroup(newGroup.id); // Update currentUser state to include this group
         }
     };
 
@@ -51,9 +52,20 @@ export function Groups({ currentUser, onJoinGroup }: GroupsProps) {
         }
     };
 
-    const myGroups = groups.filter(g => currentUser.myGroups.includes(g.id));
 
-    const otherGroups = groups
+
+    const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredGroups = groups.filter(g => {
+        const matchesSearch = g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            g.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesSearch;
+    });
+
+    const myGroups = filteredGroups.filter(g => currentUser.myGroups.includes(g.id));
+
+    const otherGroups = filteredGroups
         .filter(g => {
             // 1. Exclude joined groups
             if (currentUser.myGroups.includes(g.id)) return false;
@@ -68,15 +80,18 @@ export function Groups({ currentUser, onJoinGroup }: GroupsProps) {
         })
         .map(g => ({
             ...g,
-            score: calculateScore(g.tags, currentUser.interests),
+            score: calculateMatchScore(g.tags, currentUser.interests),
             members: g.members || 1
         }))
         .sort((a, b) => b.score - a.score);
 
-    const recommendedGroups = otherGroups.filter(g => g.score >= 50);
-    const allGroups = otherGroups; // Or remaining
+    let recommendedGroups = otherGroups.filter(g => g.score >= 50);
+    // Fallback: If no groups meet the threshold, take the top 1 matching group (if any exist)
+    if (recommendedGroups.length === 0 && otherGroups.length > 0) {
+        recommendedGroups = [otherGroups[0]];
+    }
 
-    const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+    const allGroups = otherGroups; // Or remaining
 
     return (
         <div className="max-w-[1000px] mx-auto py-6 relative">
@@ -105,10 +120,10 @@ export function Groups({ currentUser, onJoinGroup }: GroupsProps) {
             )}
 
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Lerngruppen</h2>
+                <h2 className="text-2xl font-bold text-foreground">Lerngruppen</h2>
                 <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full font-medium shadow-sm hover:shadow hover:bg-primary-dark transition-all"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full font-medium shadow-sm hover:shadow hover:bg-primary/90 transition-all"
                 >
                     <Plus size={18} />
                     <span>Gruppe erstellen</span>
@@ -116,17 +131,19 @@ export function Groups({ currentUser, onJoinGroup }: GroupsProps) {
             </div>
 
             <div className="relative mb-6">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
                 <input
                     type="text"
                     placeholder="Gruppen suchen..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                    className="w-full pl-10 pr-4 py-2 bg-card text-foreground border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-muted-foreground"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
 
             {myGroups.length > 0 && (
                 <div className="mb-10">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
                         <span className="w-1.5 h-6 bg-green-500 rounded-full"></span>
                         Meine Gruppen
                     </h3>
@@ -147,7 +164,7 @@ export function Groups({ currentUser, onJoinGroup }: GroupsProps) {
             )}
 
             <div className="mb-10">
-                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
                     <span className="w-1.5 h-6 bg-primary rounded-full"></span>
                     Empfohlene Gruppen
                 </h3>
@@ -167,8 +184,8 @@ export function Groups({ currentUser, onJoinGroup }: GroupsProps) {
             </div>
 
             <div>
-                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <span className="w-1.5 h-6 bg-gray-300 rounded-full"></span>
+                <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                    <span className="w-1.5 h-6 bg-muted rounded-full"></span>
                     Alle Gruppen
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

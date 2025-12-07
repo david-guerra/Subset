@@ -10,6 +10,16 @@ export interface Student {
     email?: string;
     username?: string;
     password?: string;
+    connections?: number[];
+    incomingRequests?: number[];
+    outgoingRequests?: number[];
+}
+
+export interface Comment {
+    id: number;
+    authorName: string;
+    content: string;
+    timestamp: string;
 }
 
 export interface Post {
@@ -19,14 +29,18 @@ export interface Post {
     tags: string[];
     likes: number;
     comments: number;
+    commentsList?: Comment[];
     timestamp: string;
     hasImage: boolean;
     imageUrl?: string;
     context?: {
-        type: 'club' | 'group' | 'module' | 'connection' | 'general';
+        type?: string;
         name?: string;
         id?: number;
     };
+    isAnonymous?: boolean;
+    isFlagged?: boolean;
+    flagReason?: 'integrity' | 'crisis';
 }
 
 export interface Group {
@@ -76,9 +90,28 @@ export interface Chat {
     messages: Message[];
 }
 
+export interface Event {
+    id: number;
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    location: string;
+    organizer: {
+        type: 'club' | 'group' | 'module' | 'university';
+        name: string;
+        id?: number;
+    };
+    tags: string[];
+    image?: string;
+    attendees?: number;
+    attendeeIds?: number[];
+    isPublic?: boolean;
+}
+
 export const INITIAL_DATA = {
     students: [
-        { id: 1, name: "Alice Smith", major: "Informatik", year: "WiSe 23/24", interests: ["Coding", "AI", "Gaming"], bio: "Hi, ich bin Alice!", courses: ["Einführung in KI"] },
+        { id: 1, name: "Alice Smith", major: "Informatik", year: "WiSe 23/24", interests: ["Coding", "AI", "Gaming"], bio: "Hi, ich bin Alice!", courses: ["Einführung in KI"], connections: [] },
         { id: 2, name: "Bob Jones", major: "BWL", year: "SoSe 24", interests: ["Startups", "Finance", "Tennis"], courses: ["Digitales Marketing"] },
         { id: 3, name: "Charlie Brown", major: "Design", year: "WiSe 22/23", interests: ["UI/UX", "Art", "Photography"], courses: ["User Experience Design"] },
         { id: 4, name: "Diana Prince", major: "Psychologie", year: "SoSe 23", interests: ["Mindfulness", "Yoga", "Reading"], courses: ["Psychologie Einführung"] },
@@ -217,5 +250,6 @@ export const INITIAL_DATA = {
                 { id: 2, senderId: 3, text: "Danke für das Feedback!", timestamp: "10:15" }
             ]
         }
-    ] as Chat[]
+    ] as Chat[],
+    events: [] as Event[]
 };
